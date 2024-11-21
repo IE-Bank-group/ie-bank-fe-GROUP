@@ -1,0 +1,21 @@
+# General owners for all files
+* @Dolfynn @juandifer
+
+# Product Owner: Owns documentation and product feature descriptions
+/README.md @celinezoubii
+
+# Cloud Architect: Owns Vue.js configurations, and any related cloud services or configurations
+/vue.config.js @ptorrado2003
+
+# Site Reliability Engineers: Owns all workflows and CI/CD related files
+/.github/workflows/* @Nvh270704 @Thulfiqarrr
+
+# Full Stack Developers: Owns all application source code
+/src/ @Dolfynn @juandifer
+
+# Infrastructure: Owns environment configuration files
+/.env.development @apayne185
+/.env.uat @apayne185
+
+# Product Owner: Owns project-related documentation and instructions
+/.gitignore @celinezoubii
