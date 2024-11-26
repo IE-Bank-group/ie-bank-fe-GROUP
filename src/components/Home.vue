@@ -17,7 +17,7 @@
             <br /><br />
  
             <!-- Add the large photo below the button -->
-            <img src="../assets/bank_background_photo.png" alt="Banking photo" class="large-photo" />
+            <img src="../assets/logo.png" alt="Banking photo" class="large-photo" />
  
             <footer class="text-center">
               Copyright &copy; All Rights Reserved.
