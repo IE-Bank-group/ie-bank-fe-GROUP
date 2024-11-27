@@ -3,10 +3,28 @@ import VueRouter from 'vue-router'
 import Skull from '../components/Skull.vue'
 import AppAccounts from '../components/AppAccounts.vue'
 import Home from '../components/Home.vue'
+import login from '../components/login.vue'
+import register from '@/components/register.vue'
+import AdminPortal from '@/components/AdminPortal.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/admin',
+    name: 'AdminPortal',
+    component: AdminPortal
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: register
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: login
+  },
   {
     path: '/skull',
     name: 'Skull',
