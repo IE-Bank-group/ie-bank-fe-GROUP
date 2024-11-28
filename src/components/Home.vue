@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div>
     <!-- Thinner Blue Top Banner -->
     <div class="top-banner">
@@ -19,6 +20,32 @@
           >
             Register
           </button>
+=======
+    <div class="jumbotron vertical-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1>IE Bank - Home</h1>
+            <hr />
+            <br />
+ 
+            <button
+              type="button"
+              class="btn btn-success btn-sm"
+              @click="navigateToAccounts"
+            >
+              Manage Bank Accounts
+            </button>
+            <br /><br />
+ 
+            <!-- Add the large photo below the button -->
+            <img src="../assets/logo.png" alt="Banking photo" class="large-photo" />
+ 
+            <footer class="text-center">
+              Copyright &copy; All Rights Reserved.
+            </footer>
+          </div>
+>>>>>>> 2d62fc191f041f1fcee8bb4c31843ba0e6722bc6
         </div>
       </div>
     </div>
