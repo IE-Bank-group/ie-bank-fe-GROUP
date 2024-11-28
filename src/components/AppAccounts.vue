@@ -7,10 +7,10 @@
         <div class="auth-buttons">
           <button
             type="button"
-            class="btn btn-primary btn-sm"
-            @click="navigateToHome"
+            class="btn btn-danger btn-sm"
+            @click="logout"
           >
-            Home
+            Logout
           </button>
         </div>
       </div>
@@ -293,12 +293,18 @@ export default {
       },
       showMessage: false,
       message: "",
+      username: this.$root.username || localStorage.getItem('username'), // Use global state or fallback to localStorage
+      password: this.$root.password || localStorage.getItem('password'), // Use global state or fallback to localStorage
     };
   },
   methods: {
-    navigateToHome() {
+    logout() {
+      // Clear user credentials from localStorage
+      localStorage.removeItem("username");
+      localStorage.removeItem("password");
       this.$router.push("/");
     },
+
     /***************************************************
      * RESTful requests
      ***************************************************/
@@ -306,43 +312,68 @@ export default {
     //GET function
     RESTgetAccounts() {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts`;
+      const authHeader = {
+        headers: { Authorization: `Basic ${btoa(this.username + ":" + this.password)}` },
+      };
+      console.log(`Fetching accounts for user: ${this.username}`);
       axios
-        .get(path)
+        .get(path, authHeader)
         .then((response) => {
-          this.accounts = response.data.accounts;
+          console.log("Accounts fetched successfully:", response.data);
+          this.accounts = response.data; // Store the fetched accounts
         })
         .catch((error) => {
-          console.error(error);
+          console.error("Error fetching accounts:", error.response || error.message);
+          this.message = "Error fetching accounts. Please try again.";
+          this.showMessage = true;
+          setTimeout(() => {
+            this.showMessage = false;
+          }, 3000);
         });
     },
+
 
     // POST function
     RESTcreateAccount(payload) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts`;
+      const authHeader = {
+        headers: { Authorization: `Basic ${btoa(this.username + ":" + this.password)}` },
+      };
+      console.log(`Authorization Header: Basic ${btoa(this.username + ":" + this.password)}`);
+
       axios
-        .post(path, payload)
+        .post(path, payload, authHeader)
         .then((response) => {
           this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Created succesfully!";
-          // To actually show the message
+          this.message = "Account created successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
-          this.RESTgetAccounts();
+          console.error("Error creating account:", error.response); // Log the error response
+          if (error.response && error.response.data && error.response.data.error) {
+            this.message = `Failed to create account: ${error.response.data.error}`;
+          } else {
+            this.message = "Failed to create account due to a network or server error.";
+          }
+          this.showMessage = true;
+          setTimeout(() => {
+            this.showMessage = false;
+          }, 3000);
         });
     },
+
 
     // Update function
     RESTupdateAccount(payload, accountId) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts/${accountId}`;
+      const authHeader = {
+        headers: { Authorization: `Basic ${btoa(this.username + ":" + this.password)}` },
+      };
       axios
-        .put(path, payload)
+        .put(path, payload, authHeader)
         .then((response) => {
           this.RESTgetAccounts();
           // For message alert
@@ -363,24 +394,31 @@ export default {
     // Delete account
     RESTdeleteAccount(accountId) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts/${accountId}`;
+      const authHeader = {
+        headers: { Authorization: `Basic ${btoa(this.username + ":" + this.password)}` },
+      };
+      console.log(`Deleting account with ID: ${accountId}`);
       axios
-        .delete(path)
+        .delete(path, authHeader) // Ensure authHeader is passed correctly
         .then((response) => {
-          this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Deleted succesfully!";
-          // To actually show the message
+          console.log("Account deleted successfully:", response.data);
+          this.RESTgetAccounts(); // Refresh the account list
+          this.message = "Account deleted successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
-          this.RESTgetAccounts();
+          console.error("Error deleting account:", error.response || error.message);
+          this.message = "Failed to delete account. Please try again.";
+          this.showMessage = true;
+          setTimeout(() => {
+            this.showMessage = false;
+          }, 3000);
         });
     },
+
 
     /***************************************************
      * FORM MANAGEMENT
@@ -452,7 +490,10 @@ export default {
 
     // API call to transfer money
     RESTtransferMoney(payload) {
-      const path = `${process.env.VUE_APP_ROOT_URL}/accounts/transfer`;
+      const path = `${process.env.VUE_APP_ROOT_URL}/transfer`;
+      const authHeader = {
+        headers: { Authorization: `Basic ${btoa(this.username + ":" + this.password)}` },
+      };
       axios
         .post(path, payload)
         .then((response) => {
@@ -465,6 +506,11 @@ export default {
         })
         .catch((error) => {
           console.error("Transfer failed:", error);
+          this.message = "Transfer failed.";
+          this.showMessage = true;
+          setTimeout(() => {
+            this.showMessage = false;
+          }, 3000);
         });
     },
 
@@ -474,8 +520,15 @@ export default {
    * LIFECYClE HOOKS
    ***************************************************/
   created() {
-    this.RESTgetAccounts();
+    if (!this.username || !this.password) {
+      // Redirect to login if credentials are missing
+      this.$router.push("/login");
+    } else {
+      // Fetch accounts for the logged-in user
+      this.RESTgetAccounts();
+    }
   },
+
 };
 </script>
 

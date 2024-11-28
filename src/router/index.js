@@ -6,12 +6,11 @@ import Home from '../components/Home.vue'
 import login from '../components/login.vue'
 import register from '@/components/register.vue'
 import AdminPortal from '@/components/AdminPortal.vue'
-
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/admin',
+    path: '/users',
     name: 'AdminPortal',
     component: AdminPortal
   },

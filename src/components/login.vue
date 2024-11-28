@@ -10,27 +10,70 @@
         <label for="password">Password:</label>
         <input type="password" id="password" v-model="password" placeholder="Enter your password" />
       </div>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
       <button @click="login">Login</button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
       username: '',
       password: '',
+      errorMessage: '', // Store error messages to display
     };
   },
   methods: {
-    login() {
+    async login() {
       if (this.username && this.password) {
-        this.$router.push('/accounts');
+        try {
+          const response = await axios.post(
+            `${process.env.VUE_APP_ROOT_URL}/loginuser`,
+            {
+              username: this.username,
+              password: this.password,
+            }
+          );
+
+          // If login is successful
+          if (response.status === 200) {
+            const { token, admin, username } = response.data;
+
+            // Save token and user details in localStorage
+            localStorage.setItem('authToken', token); // Save the token
+            localStorage.setItem('username', username); // Save the username
+            localStorage.setItem('admin', admin); // Save admin status
+
+            // Set global username (if needed)
+            this.$root.username = username;
+
+            console.log(`Logged in user: ${username}`); // Debugging log
+
+            // Redirect based on user role
+            if (admin) {
+              this.$router.push("/users"); // Redirect to admin panel
+            } else {
+              this.$router.push("/accounts"); // Redirect to user accounts page
+            }
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 401) {
+            this.errorMessage = 'Invalid username or password.';
+          } else {
+            this.errorMessage = 'An error occurred. Please try again.';
+          }
+        }
       } else {
-        alert('Please enter both username and password.');
+        this.errorMessage = 'Please enter both username and password.';
       }
-    },
+    }
+
   },
 };
 </script>
@@ -87,6 +130,11 @@ button {
   border-radius: 5px;
   cursor: pointer;
   width: 250px; /* Match input width for consistency */
+}
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 15px;
 }
 
 button:hover {

@@ -23,45 +23,71 @@
           placeholder="Confirm your password"
         />
       </div>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
       <button @click="register">Register</button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      errorMessage: "",
+      successMessage: "",
     };
   },
   methods: {
-    register() {
+    async register() {
+      // Basic validation
       if (!this.username || !this.email || !this.password || !this.confirmPassword) {
-        alert('Please fill in all fields.');
+        this.errorMessage = "Please fill in all fields.";
         return;
       }
-
       if (this.password !== this.confirmPassword) {
-        alert('Passwords do not match.');
+        this.errorMessage = "Passwords do not match.";
         return;
       }
+      this.errorMessage = ""; // Clear previous errors
 
-      // Example registration logic
-      console.log('User registered:', {
-        username: this.username,
-        email: this.email,
-        password: this.password
-      });
+      try {
+        // Make a POST request to the backend
+        const response = await axios.post(`${process.env.VUE_APP_ROOT_URL}/register`, {
+          username: this.username,
+          password: this.password,
+          confirm: this.confirmPassword,
+        }, {
+          headers: { "Content-Type": "application/json" }
+        });
 
-      // Redirect or confirm registration
-      alert('Registration successful!');
-      this.$router.push('/login'); // Navigate to the login page after registration
-    }
-  }
+        // Handle success
+        if (response.status === 201) {
+          this.successMessage = "Registration successful! Redirecting to login...";
+          setTimeout(() => {
+            this.$router.push("/login"); // Navigate to login page after success
+          }, 2000);
+        }
+      } catch (error) {
+        // Handle errors
+        if (error.response && error.response.data) {
+          this.errorMessage = error.response.data.error || "An error occurred.";
+        } else {
+          this.errorMessage = "Failed to register. Please try again.";
+        }
+      }
+    },
+  },
 };
 </script>
 
@@ -126,6 +152,19 @@ button:hover {
 /* H1 styling */
 h1 {
   color: white;
-  font-family: 'Montserrat', 'Poppins', sans-serif;
+  font-family: "Montserrat", "Poppins", sans-serif;
+}
+
+/* Error and Success Messages */
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.success-message {
+  color: green;
+  margin-bottom: 10px;
+  font-size: 14px;
 }
 </style>
