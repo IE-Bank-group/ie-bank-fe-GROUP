@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  FRONTEND_WEBAPP_DEV: zalsaheb-fe-dev
-  FRONTEND_WEBAPP_UAT: zalsaheb-fe-uat
+  FRONTEND_WEBAPP_DEV: apayne-fe-dev
+  FRONTEND_WEBAPP_UAT: apayne-fe-uat
 
 jobs:
   build-dev:
