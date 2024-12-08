@@ -6,7 +6,7 @@
           <h1>Accounts</h1>
           <hr />
           <br />
-          <!-- Allert Message -->
+          <!-- Alert Message -->
           <b-alert v-if="showMessage" variant="success" show>{{
             message
           }}</b-alert>
@@ -24,22 +24,22 @@
             <thead>
               <tr>
                 <th scope="col">Account Name</th>
-                <th scope="col">Account Country</th>
                 <th scope="col">Account Number</th>
                 <th scope="col">Account Balance</th>
                 <th scope="col">Account Currency</th>
+                <th scope="col">Country</th>
                 <th scope="col">Account Status</th>
                 <th scope="col">Actions</th>
-                
+
               </tr>
             </thead>
             <tbody>
               <tr v-for="account in accounts" :key="account.id">
                 <td>{{ account.name }}</td>
-                <td>{{ account.country }}</td>
                 <td>{{ account.account_number }}</td>
                 <td>{{ account.balance }}</td>
                 <td>{{ account.currency }}</td>
+                <td>{{ account.country }}</td>
                 <td>
                   <span
                     v-if="account.status == 'Active'"
@@ -112,16 +112,13 @@
               required
             >
             </b-form-input>
-
           </b-form-group>
-
           <b-form-group
-            id="form-country-group"
+            id="form-currency-group"
             label="Country:"
             label-for="form-country-input"
           >
-
-          <b-form-input
+            <b-form-input
               id="form-country-input"
               type="text"
               v-model="createAccountForm.country"
@@ -129,7 +126,6 @@
               required
             >
             </b-form-input>
-
           </b-form-group>
 
           <b-button type="submit" variant="outline-info">Submit</b-button>
@@ -159,21 +155,6 @@
             >
             </b-form-input>
           </b-form-group>
-
-          <b-form-group
-            id="form-edit-country-group"
-            label="Country:"
-            label-for="form-edit-country-input"
-          >
-            <b-form-input
-              id="form-edit-country-input"
-              type="text"
-              v-model="editAccountForm.country"
-              placeholder="Country"
-              required
-            >
-            </b-form-input>
-          </b-form-group>
           <b-button type="submit" variant="outline-info">Update</b-button>
         </b-form>
       </b-modal>
@@ -184,6 +165,10 @@
 
 <script>
 import axios from "axios";
+
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 export default {
   name: "AppAccounts",
   data() {
@@ -197,7 +182,6 @@ export default {
       editAccountForm: {
         id: "",
         name: "",
-        country: "",
       },
       showMessage: false,
       message: "",
@@ -225,20 +209,25 @@ export default {
     RESTcreateAccount(payload) {
       const path = `${process.env.VUE_APP_ROOT_URL}/accounts`;
       axios
-        .post(path, payload)
+        .post(path, payload, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
         .then((response) => {
           this.RESTgetAccounts();
-          // For message alert
-          this.message = "Account Created succesfully!";
-          // To actually show the message
+          this.message = "Account Created successfully!";
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
         })
         .catch((error) => {
-          console.error(error);
+          console.error('Create account error:', error);
+          if (error.response && error.response.status === 401) {
+            this.$router.push('/login');
+          }
           this.RESTgetAccounts();
         });
     },
@@ -250,11 +239,8 @@ export default {
         .put(path, payload)
         .then((response) => {
           this.RESTgetAccounts();
-          // For message alert
           this.message = "Account Updated succesfully!";
-          // To actually show the message
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
@@ -272,11 +258,8 @@ export default {
         .delete(path)
         .then((response) => {
           this.RESTgetAccounts();
-          // For message alert
           this.message = "Account Deleted succesfully!";
-          // To actually show the message
           this.showMessage = true;
-          // To hide the message after 3 seconds
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
@@ -319,7 +302,6 @@ export default {
       this.$refs.editAccountModal.hide(); //hide the modal when submitted
       const payload = {
         name: this.editAccountForm.name,
-        country: this.editAccountForm.country,
       };
       this.RESTupdateAccount(payload, this.editAccountForm.id);
       this.initForm();
@@ -333,6 +315,26 @@ export default {
     // Handle Delete button
     deleteAccount(account) {
       this.RESTdeleteAccount(account.id);
+    },
+
+    async login(credentials) {
+      try {
+        const response = await axios.post(
+          `${process.env.VUE_APP_ROOT_URL}/login`,
+          credentials,
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+        console.log('Login response:', response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
     },
   },
 
