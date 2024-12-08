@@ -51,11 +51,12 @@ jobs:
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: GDevelopment Token from Key Vault
+          
+      # Fetching the deployment token from Key Vault
+      - name: Get Development Token from Key Vault
         id: get-dev-token
         run: |
-          DEV_TOKEN=$(az keyvault secret show --vault-name apayne-fe-dev --name SWATokenSecret --query value -o tsv)
+          DEV_TOKEN=$(az keyvault secret show --vault-name apayne-kv-dev --name StaticWebAppDeploymentToken --query value -o tsv)
           echo "DEV_TOKEN=${DEV_TOKEN}" >> $GITHUB_ENV
 
       - name: List files in the workspace
@@ -68,7 +69,6 @@ jobs:
           action: "upload"
           app_location: .
           output_location: .
-          
 
   build-uat:
     runs-on: ubuntu-latest
@@ -109,10 +109,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # Fetching the UAT token from Key Vault
+      - name: Get UAT Token from Key Vault
+        id: get-uat-token
+        run: |
+          UAT_TOKEN=$(az keyvault secret show --vault-name apayne-kv-uat --name StaticWebAppDeploymentToken --query value -o tsv)
+          echo "UAT_TOKEN=${UAT_TOKEN}" >> $GITHUB_ENV
+
       - name: 'Deploy to Azure Web App - UAT'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: apayne-fe-uat
           package: .
+
 
