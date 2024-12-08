@@ -58,6 +58,7 @@ jobs:
         with:
           app-name: apayne-fe-dev
           package: .
+          deployment_action: upload
 
   build-uat:
     runs-on: ubuntu-latest
