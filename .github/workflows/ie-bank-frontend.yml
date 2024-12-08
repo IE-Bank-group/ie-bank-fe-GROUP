@@ -52,7 +52,6 @@ jobs:
         with:
           app_location: ./dist-dev
           api_location: "" # Leave blank if no separate API for development
-          output_location: ./dist-dev # Optional, if app_location already points to the built files
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           
 
