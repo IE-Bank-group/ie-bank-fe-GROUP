@@ -23,6 +23,7 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
 
+      # Clear npm cache to ensure fresh install
       - name: Clean npm cache
         run: npm cache clean --force
 
@@ -61,6 +62,10 @@ jobs:
         run: |
           DEV_TOKEN=$(az keyvault secret show --vault-name apayne-kv-dev --name StaticWebAppDeploymentToken --query value -o tsv)
           echo "DEV_TOKEN=${DEV_TOKEN}" >> $GITHUB_ENV
+
+      # Debug step to verify DEV_TOKEN value
+      - name: Debug DEV_TOKEN
+        run: echo "DEV_TOKEN=${{ env.DEV_TOKEN }}"
 
       - name: List files in the workspace
         run: ls -R
@@ -125,5 +130,4 @@ jobs:
         with:
           app-name: apayne-fe-uat
           package: .
-
 
