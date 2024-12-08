@@ -52,12 +52,23 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Deploy to Azure Web App - Development'
-        id: deploy-to-webapp
+      - name: GDevelopment Token from Key Vault
+        id: get-dev-token
+        run: |
+          DEV_TOKEN=$(az keyvault secret show --vault-name apayne-fe-dev --name SWATokenSecret --query value -o tsv)
+          echo "DEV_TOKEN=${DEV_TOKEN}" >> $GITHUB_ENV
+
+      - name: List files in the workspace
+        run: ls -R
+
+      - name: Deploy to Azure Static Web App (Development)
         uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
         with:
-          app-name: apayne-fe-dev
-          package: .
+          azure_static_web_apps_api_token: ${{ env.DEV_TOKEN }}
+          action: "upload"
+          app_location: .
+          output_location: .
+          
 
   build-uat:
     runs-on: ubuntu-latest
