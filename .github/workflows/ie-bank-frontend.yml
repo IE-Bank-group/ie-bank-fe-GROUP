@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app-dev
-          path: dist-dev/
+          path: dist/
 
   deploy-dev:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -55,7 +55,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.FRONTEND_WEBAPP_DEV }}
+          app-name: apayne-fe-dev
           package: .
 
   build-uat:
