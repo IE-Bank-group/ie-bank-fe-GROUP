@@ -127,7 +127,7 @@ export default {
 <style scoped>
 /* Add background image to the entire page */
 .login-background {
-  background: url("C:\\Users\\Fynnj\\Desktop\\DEVOPS\\ie-bank-fe-GROUP\\images\\background.jpeg")
+  background: url('@/assets/background.jpeg')
     no-repeat center center fixed;
   background-size: cover;
   height: 100vh;

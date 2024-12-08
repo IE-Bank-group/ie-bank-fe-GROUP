@@ -181,7 +181,7 @@ export default {
 <style scoped>
 /* Background with image */
 .register-background {
-  background: url("C:\\Users\\Fynnj\\Desktop\\DEVOPS\\ie-bank-fe-GROUP\\images\\background.jpeg")
+  background: url('@/assets/background.jpeg')
     no-repeat center center fixed;
   background-size: cover;
   height: 100vh;

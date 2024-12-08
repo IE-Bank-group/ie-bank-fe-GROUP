@@ -150,7 +150,7 @@ html {
   position: relative;
   width: 100%;
   height: 400px; /* Adjust height as needed */
-  background-image: url('C:\Users\Fynnj\Desktop\DEVOPS\ie-bank-fe-GROUP\images\background.jpeg'); /* Set your image path */
+  background-image: url('@/assets/background.jpeg'); /* Set your image path */
   background-size: cover; /* Ensures the image covers the section */
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Prevent tiling */
