@@ -40,25 +40,21 @@ jobs:
     needs: build-dev
     environment:
       name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+  
     steps:
       - name: Download artifact from build-dev job
         uses: actions/download-artifact@v4
         with:
           name: node-app-dev
-
-      - uses: azure/login@v2
+  
+      - name: Deploy to Azure Static Web App - Development
+        uses: Azure/static-web-apps-deploy@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: 'Deploy to Azure Web App - Development'
-        id: deploy-to-webapp
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
-        with:
-          app-name: apayne-fe-dev
-          package: .
-          deployment_action: upload
+          app_location: ./dist-dev
+          api_location: "" # Leave blank if no separate API for development
+          output_location: ./dist-dev # Optional, if app_location already points to the built files
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          
 
   build-uat:
     runs-on: ubuntu-latest
