@@ -13,9 +13,8 @@ env:
   FRONTEND_WEBAPP_PROD: apayne-fe-prod
 
 jobs:
-  build:
+  build-dev:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js version
@@ -38,36 +37,13 @@ jobs:
           name: node-app-dev
           path: dist-dev/
 
-      - name: npm install and build (UAT)
-        run: |
-          npm install
-          npm run build:uat
-
-      - name: Upload artifact for UAT deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app-uat
-          path: dist-uat/
-
-      - name: npm install and build (Production)
-        run: |
-          npm install
-          npm run build:prod
-
-      - name: Upload artifact for Production deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app-prod
-          path: dist-prod/
-
   deploy-dev:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-dev
     environment:
       name: 'Development'
-
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact from build-dev job
         uses: actions/download-artifact@v4
         with:
           name: node-app-dev
@@ -95,14 +71,38 @@ jobs:
           app_location: .
           output_location: .
 
-  deploy-uat:
+  build-uat:
     runs-on: ubuntu-latest
     needs: deploy-dev
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: npm install and build (UAT)
+        run: |
+          npm install
+          npm run build:uat
+
+      - name: Upload artifact for UAT deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app-uat
+          path: dist-uat/
+
+  deploy-uat:
+    runs-on: ubuntu-latest
+    needs: build-uat
     environment:
       name: 'UAT'
-
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact from build-uat job
         uses: actions/download-artifact@v4
         with:
           name: node-app-uat
@@ -130,14 +130,38 @@ jobs:
           app_location: .
           output_location: .
 
-  deploy-prod:
+  build-prod:
     runs-on: ubuntu-latest
     needs: deploy-uat
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: npm install and build (Production)
+        run: |
+          npm install
+          npm run build:prod
+
+      - name: Upload artifact for Production deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app-prod
+          path: dist-prod/
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build-prod
     environment:
       name: 'Production'
-
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact from build-prod job
         uses: actions/download-artifact@v4
         with:
           name: node-app-prod
@@ -164,4 +188,5 @@ jobs:
           action: "upload"
           app_location: .
           output_location: .
+
 
