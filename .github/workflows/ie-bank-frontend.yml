@@ -2,9 +2,9 @@ name: ie-bank-frontend
 
 on:
   push:
-    branches: [ "keyvault-PROD" ]
+    branches: [ "trinirocaaa-patch-6" ]
   pull_request:
-    branches: [ "keyvault-PROD" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
