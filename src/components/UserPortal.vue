@@ -179,7 +179,7 @@ export default {
       try {
         const response = await axios.get(`${process.env.VUE_APP_ROOT_URL}/user_portal`, {
           headers: {
-            'x-access-token': this.token, // Use the stored token
+            Authorization: `Bearer ${this.token}`, // Use the stored token
           },
         });
         this.accounts = response.data.accounts;
@@ -218,7 +218,7 @@ export default {
       try {
         const response = await axios.post(`${process.env.VUE_APP_ROOT_URL}/accounts`, this.createAccountForm, {
           headers: {
-            'x-access-token': this.token,
+            Authorization: `Bearer ${this.token}`
           },
         });
         // Logs
@@ -240,7 +240,7 @@ export default {
       try {
         const response = await axios.put(`${process.env.VUE_APP_ROOT_URL}/accounts/${this.editAccountForm.id}`, this.editAccountForm, {
           headers: {
-            'x-access-token': this.token,
+            Authorization: `Bearer ${this.token}`
           },
         });
         this.showMessage('Account updated successfully');
@@ -259,7 +259,7 @@ export default {
       try {
         const response = await axios.delete(`${process.env.VUE_APP_ROOT_URL}/accounts/${id}`, {
           headers: {
-            'x-access-token': this.token,
+            Authorization: `Bearer ${this.token}`
           },
         });
 
@@ -294,7 +294,7 @@ export default {
         };
         const response = await axios.post(`${process.env.VUE_APP_ROOT_URL}/transactions`, payload, {
           headers: {
-            'x-access-token': this.token,
+            Authorization: `Bearer ${this.token}`
           },
         });
         // Logs
