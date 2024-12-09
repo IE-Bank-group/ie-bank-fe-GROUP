@@ -152,7 +152,12 @@ export default {
       });
 
       axios
-        .post(path, payload) // Send POST request with the payload
+        .post(path, payload, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         .then((response) => {  
           // Log successful registration event
           trackEvent('RegisterSuccess', {

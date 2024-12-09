@@ -240,7 +240,7 @@ export default {
       try {
         const response = await axios.put(`${process.env.VUE_APP_ROOT_URL}/accounts/${this.editAccountForm.id}`, this.editAccountForm, {
           headers: {
-            Authorization: `Bearer ${this.token}`,
+            Authorization: `Bearer ${this.token}`
           },
         });
         this.showMessage('Account updated successfully');
@@ -259,7 +259,7 @@ export default {
       try {
         const response = await axios.delete(`${process.env.VUE_APP_ROOT_URL}/accounts/${id}`, {
           headers: {
-            Authorization: `Bearer ${this.token}`,
+            Authorization: `Bearer ${this.token}`
           },
         });
 
@@ -294,7 +294,7 @@ export default {
         };
         const response = await axios.post(`${process.env.VUE_APP_ROOT_URL}/transactions`, payload, {
           headers: {
-            Authorization: `Bearer ${this.token}`,
+            Authorization: `Bearer ${this.token}`
           },
         });
         // Logss
