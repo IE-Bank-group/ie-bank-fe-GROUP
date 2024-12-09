@@ -297,7 +297,7 @@ export default {
             Authorization: `Bearer ${this.token}`,
           },
         });
-        // Logs
+        // Logss
         this.showMessage('Transaction created successfully');
         trackEvent('TransactionCreated', { payload });
         // Refresh and reset
