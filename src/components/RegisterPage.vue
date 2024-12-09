@@ -154,7 +154,8 @@ export default {
         .post(path, payload, {
           withCredentials: true,
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`
           }
         })
         .then((response) => {  
@@ -168,12 +169,11 @@ export default {
           this.$router.push("/login"); // Redirect to the login page
         })
         .catch((error) => {
-          const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
+          const errorMessage = 'Registration failed. Please try again.';
           // Log registration error event
           trackEvent('RegisterError', {
             username: this.username,
             email: this.email,
-            errorMessage,
           });
           this.showMessage(errorMessage, 'danger');
         });
