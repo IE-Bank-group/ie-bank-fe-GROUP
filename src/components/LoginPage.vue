@@ -25,9 +25,6 @@
           required
         />
       </div>
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
       <button @click="login">Login</button>
       <p class="register-link">
         Don't have an account?
@@ -82,7 +79,7 @@ export default {
           // Store user info and session data
           localStorage.setItem("user", JSON.stringify(response.data.user));
           localStorage.setItem("isAuthenticated", "true");
-          localStorage.setItem("userRole", response.data.user.role || "user");
+          localStorage.setItem("userAdmin", response.data.user.admin || false);
           localStorage.setItem("userId", response.data.user.id);
 
           // Store the auth token
@@ -96,14 +93,13 @@ export default {
           // Log successful login event
           trackEvent("LoginSuccess", {
             username,
-            role: response.data.user.role || "user",
+            admin: response.data.user.admin || false,
           });
 
           // Welcome message
           alert(`Welcome back, ${response.data.user.username || username}!`);
 
-          // Redirect based on role
-          if (response.data.user.role === "admin") {
+          if (response.data.user.admin === true) {
             this.$router.push("/admin");
           } else {
             this.$router.push("/user");
@@ -111,7 +107,7 @@ export default {
         })
         .catch((error) => {
           localStorage.clear(); // Clear any existing auth data
-          trackEvent("LoginError", {username, errorMessage: error.response?.data?.message || error.message,});
+          trackEvent("LoginError");
           alert("Login failed. Please check your credentials.");
         });
     },

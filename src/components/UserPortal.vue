@@ -31,7 +31,6 @@
             <th>Currency</th>
             <th>Country</th>
             <th>Status</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -45,18 +44,6 @@
               <span v-if="account.status === 'Active'" class="badge badge-success">{{ account.status }}</span>
               <span v-else class="badge badge-danger">{{ account.status }}</span>
             </td>
-            <td>
-              <div class="btn-group">
-                <button class="edit-button" @click="openUpdateAccountModal(account)">
-                  <svg viewBox="0 0 512 512" class="svgIcon">
-                    <path d="M497.9 142.1L369.9 14.1C362.3 6.5 351.6 0 339.3 0c-12.3 0-23 6.5-30.6 14.1L123 200.8c-2.6 2.6-4.5 5.9-5.3 9.5l-42 177.6c-4.3 18 10.6 34.3 29.3 30l177.5-42c3.7-.8 6.9-2.8 9.5-5.3l185.5-185.6c17-17.2 17-45 0-62zM124.3 366l24.8-104.6 79.8 79.8L124.3 366z"></path>
-                  </svg>
-                </button>
-                <button class="delete-button" @click="deleteAccount(account.id)">
-                  <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
-                </button>
-              </div>
-            </td>
           </tr>
         </tbody>
       </table>
@@ -68,22 +55,16 @@
       <table class="table table-hover transactions-table">
         <thead>
           <tr>
-            <th>Date</th>
             <th>Amount</th>
-            <th>Currency</th>
             <th>From Account</th>
             <th>To Account</th>
-            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="transaction in transactions" :key="transaction.id">
-            <td>{{ transaction.created_at }}</td>
             <td>{{ transaction.amount }}</td>
-            <td>{{ transaction.currency }}</td>
             <td>{{ transaction.from_account }}</td>
             <td>{{ transaction.to_account }}</td>
-            <td>{{ transaction.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -441,113 +422,6 @@ export default {
   margin-bottom: 15px;
   border-radius: 0px;
   transition: background-color 0.3s ease;
-}
-.edit-button {
-  width: 45px;
-  height: 31px;
-  background-color: rgb(0, 200, 255);
-  border: none;
-  font-weight: 600;
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition-duration: .3s;
-  overflow: hidden;
-  position: relative;
-}
-
-.svgIcon {
-  width: 12px;
-  transition-duration: .3s;
-}
-
-.svgIcon path {
-  fill: white;
-}
-
-.edit-button:hover {
-  width: 45px;
-  transition-duration: .3s;
-  background-color: rgb(0, 200, 255);
-  align-items: center;
-}
-
-.edit-button:hover .svgIcon {
-  width: 12px;
-  transition-duration: .3s;
-  transform: translateY(100%);
-}
-
-.edit-button::before {
-  position: absolute;
-  top: -9px;
-  content: "Edit";
-  color: white;
-  transition-duration: .3s;
-  font-size: 5px;
-}
-
-.edit-button:hover::before {
-  font-size: 10px;
-  opacity: 1;
-  transform: translateY(10px);
-  transition-duration: .3s;
-}
-
-.delete-button {
-  width: 45px;
-  height: 31px;
-  background-color: rgb(255, 0, 0);
-  border: none;
-  font-weight: 600;
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition-duration: .3s;
-  overflow: hidden;
-  position: relative;
-}
-
-.svgIcon {
-  width: 12px;
-  transition-duration: .3s;
-}
-
-.svgIcon path {
-  fill: white;
-}
-
-.delete-button:hover {
-  width: 45px;
-  transition-duration: .3s;
-  background-color: rgb(255, 69, 69);
-  align-items: center;
-}
-
-.delete-button:hover .svgIcon {
-  width: 12px;
-  transition-duration: .3s;
-  transform: translateY(100%);
-}
-
-.delete-button::before {
-  position: absolute;
-  top: -9px;
-  content: "Delete";
-  color: white;
-  transition-duration: .3s;
-  font-size: 5px;
-}
-
-.delete-button:hover::before {
-  font-size: 10px;
-  opacity: 1;
-  transform: translateY(10px);
-  transition-duration: .3s;
 }
 .modal-form {
   padding: 20px;

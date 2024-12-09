@@ -25,8 +25,7 @@
           <th>Password</th>
           <th>Email</th>
           <th>Date of Birth</th>
-          <th>Status</th>
-          <th>Role</th>
+          <th>Admin</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -36,8 +35,7 @@
           <td>{{ user.password }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.date_of_birth }}</td>
-          <td>{{ user.status }}</td>
-          <td>{{ user.role }}</td>
+          <td>{{ user.admin }}</td>
           <td>
             <!-- Edit Button -->
             <button class="btn btn-primary btn-sm" @click="openUpdateModal(user)">Edit</button>
@@ -63,11 +61,10 @@
         <b-form-group label="Date of Birth" label-for="dob-input">
           <b-form-input id="dob-input" type="date" placeholder="Select date of birth" v-model="editUserAccountForm.date_of_birth" required></b-form-input>
         </b-form-group>
-        <b-form-group label="Status" label-for="status-input">
-          <b-form-input id="status-input" placeholder="Enter user status (e.g., Active)" v-model="editUserAccountForm.status" required></b-form-input>
-        </b-form-group>
-        <b-form-group label="Role" label-for="role-input">
-          <b-form-input id="role-input" placeholder="Enter user role (e.g, user, admin)" v-model="editUserAccountForm.role" required></b-form-input>
+        <b-form-group label="Admin" label-for="admin-input">
+          <b-form-checkbox id="admin-input" v-model="editUserAccountForm.admin">
+            Admin
+          </b-form-checkbox>
         </b-form-group>
         <b-button type="submit" class="modal-submit-button" variant="success">
           {{ isEditing ? 'Update User' : 'Create User' }}
@@ -93,12 +90,11 @@ export default {
         password: "",
         email: "",
         date_of_birth: "",
-        country: "",
-        status: "",
-        role: "",
+        admin: "",
       },
       showMessage: false,
       message: "",
+      token: localStorage.getItem('authToken'),
     };
   },
 
@@ -115,7 +111,7 @@ export default {
       axios
         .post(path, payload, {
           headers: {
-            'x-access-token': localStorage.getItem('authToken')
+            Authorization: `Bearer ${this.token}`
           }
         })
         .then((response) => {
@@ -125,11 +121,11 @@ export default {
           setTimeout(() => {
             this.showMessage = false;
           }, 3000);
-          trackEvent("UserAccountCreated", { username: payload.username, role: payload.role });
+          trackEvent("UserAccountCreated", { username: payload.username, admin: payload.admin });
         })
         .catch(error => {
           this.RESTgetusers();
-          trackEvent("UserAccountCreationFailed", { username: payload.username, error: error.message });
+          trackEvent("UserAccountCreationFailed", { username: payload.username});
         });
     },
 
@@ -138,7 +134,7 @@ export default {
       axios
         .get(`${process.env.VUE_APP_ROOT_URL}/admin_portal`, {
           headers: {
-            'x-access-token': localStorage.getItem('authToken')
+            Authorization: `Bearer ${this.token}`
           }
         })
         .then((response) => {
@@ -147,7 +143,7 @@ export default {
         })
         .catch(error => {
 
-          trackEvent("UserAccountsFetchFailed", { error: error.message });
+          trackEvent("UserAccountsFetchFailed")
         });
     },
 
@@ -157,7 +153,7 @@ export default {
       axios
         .put(path, payload, {
           headers: {
-            'x-access-token': localStorage.getItem('authToken')
+            Authorization: `Bearer ${this.token}`
           }
         })
         .then(() => {
@@ -171,7 +167,7 @@ export default {
         })
         .catch((error) => {
           this.RESTgetusers();
-          trackEvent("UserAccountUpdateFailed", { userId, error: error.message });
+          trackEvent("UserAccountUpdateFailed", { userId});
         });
     },
 
@@ -181,7 +177,7 @@ export default {
       axios
         .delete(path, {
           headers: {
-            'x-access-token': localStorage.getItem('authToken')
+            Authorization: `Bearer ${this.token}`
           }
         })
         .then(() => {
@@ -195,7 +191,7 @@ export default {
         })
         .catch((error) => {
           this.RESTgetusers();
-          trackEvent("UserAccountDeleteFailed", { userId, error: error.message });
+          trackEvent("UserAccountDeleteFailed", { userId});
         });
     },
 
@@ -210,9 +206,7 @@ export default {
         password: "",
         email: "",
         date_of_birth: "",
-        country: "",
-        status: "",
-        role: "",
+        admin: "",
       };
     },
 
