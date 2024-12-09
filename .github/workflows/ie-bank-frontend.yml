@@ -2,19 +2,19 @@ name: ie-bank-frontend
 
 on:
   push:
-    branches: [ "keyvault-PROD" ]
+    branches: [ "trinirocaaa-patch-6" ]
   pull_request:
-    branches: [ "keyvault-PROD" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
   FRONTEND_WEBAPP_DEV: apayne-fe-dev
   FRONTEND_WEBAPP_UAT: apayne-fe-uat
+  FRONTEND_WEBAPP_PROD: apayne-fe-prod
 
 jobs:
   build-dev:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js version
@@ -23,29 +23,25 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
 
-      # Clear npm cache to ensure fresh install
       - name: Clean npm cache
         run: npm cache clean --force
 
-      - name: npm install, build, and test (Development)
+      - name: npm install and build (Development)
         run: |
           npm install
-          npm run build:dev ## This command will build the Vue.js app using .env.development variables
+          npm run build:dev
 
-      - name: Upload artifact for deployment job (Development)
+      - name: Upload artifact for Development deployment
         uses: actions/upload-artifact@v4
         with:
           name: node-app-dev
           path: dist-dev/
 
   deploy-dev:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: build-dev
     environment:
       name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
     steps:
       - name: Download artifact from build-dev job
         uses: actions/download-artifact@v4
@@ -55,20 +51,17 @@ jobs:
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
-      # Fetching the deployment token from Key Vault
+
       - name: Get Development Token from Key Vault
-        id: get-dev-token
         run: |
           DEV_TOKEN=$(az keyvault secret show --vault-name apayne-kv-dev --name StaticWebAppDeploymentToken --query value -o tsv)
           echo "DEV_TOKEN=${DEV_TOKEN}" >> $GITHUB_ENV
 
-      # Debug step to verify DEV_TOKEN value
-      - name: Debug DEV_TOKEN
-        run: echo "DEV_TOKEN=${{ env.DEV_TOKEN }}"
-
-      - name: List files in the workspace
-        run: ls -R
+      - name: Validate DEV_TOKEN
+        run: |
+          if [ -z "$DEV_TOKEN" ]; then
+            echo "Error: DEV_TOKEN is empty. Check Key Vault configuration." && exit 1
+          fi
 
       - name: Deploy to Azure Static Web App (Development)
         uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
@@ -80,6 +73,7 @@ jobs:
 
   build-uat:
     runs-on: ubuntu-latest
+    needs: deploy-dev
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js version
@@ -88,25 +82,25 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
 
-      - name: npm install, build, and test (UAT)
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: npm install and build (UAT)
         run: |
           npm install
-          npm run build:uat ## This command will build the Vue.js app using .env.uat variables
+          npm run build:uat
 
-      - name: Upload artifact for deployment job (UAT)
+      - name: Upload artifact for UAT deployment
         uses: actions/upload-artifact@v4
         with:
           name: node-app-uat
           path: dist-uat/
 
   deploy-uat:
-    if: github.event.pull_request.base.ref == 'main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: build-uat
     environment:
       name: 'UAT'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
     steps:
       - name: Download artifact from build-uat job
         uses: actions/download-artifact@v4
@@ -117,18 +111,82 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Fetching the UAT token from Key Vault
       - name: Get UAT Token from Key Vault
-        id: get-uat-token
         run: |
           UAT_TOKEN=$(az keyvault secret show --vault-name apayne-kv-uat --name StaticWebAppDeploymentToken --query value -o tsv)
           echo "UAT_TOKEN=${UAT_TOKEN}" >> $GITHUB_ENV
 
-      - name: 'Deploy to Azure Web App - UAT'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+      - name: Validate UAT_TOKEN
+        run: |
+          if [ -z "$UAT_TOKEN" ]; then
+            echo "Error: UAT_TOKEN is empty. Check Key Vault configuration." && exit 1
+          fi
+
+      - name: Deploy to Azure Static Web App (UAT)
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
         with:
-          app-name: apayne-fe-uat
-          package: .
+          azure_static_web_apps_api_token: ${{ env.UAT_TOKEN }}
+          action: "upload"
+          app_location: .
+          output_location: .
+
+  build-prod:
+    runs-on: ubuntu-latest
+    needs: deploy-uat
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Clean npm cache
+        run: npm cache clean --force
+
+      - name: npm install and build (Production)
+        run: |
+          npm install
+          npm run build:prod
+
+      - name: Upload artifact for Production deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app-prod
+          path: dist-prod/
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build-prod
+    environment:
+      name: 'Production'
+    steps:
+      - name: Download artifact from build-prod job
+        uses: actions/download-artifact@v4
+        with:
+          name: node-app-prod
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Production Token from Key Vault
+        run: |
+          PROD_TOKEN=$(az keyvault secret show --vault-name apayne-kv-prod --name StaticWebAppDeploymentToken --query value -o tsv)
+          echo "PROD_TOKEN=${PROD_TOKEN}" >> $GITHUB_ENV
+
+      - name: Validate PROD_TOKEN
+        run: |
+          if [ -z "$PROD_TOKEN" ]; then
+            echo "Error: PROD_TOKEN is empty. Check Key Vault configuration." && exit 1
+          fi
+
+      - name: Deploy to Azure Static Web App (Production)
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
+        with:
+          azure_static_web_apps_api_token: ${{ env.PROD_TOKEN }}
+          action: "upload"
+          app_location: .
+          output_location: .
 
 
