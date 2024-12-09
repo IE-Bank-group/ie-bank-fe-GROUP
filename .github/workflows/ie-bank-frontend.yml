@@ -2,9 +2,9 @@ name: ie-bank-frontend
 
 on:
   push:
-    branches: [ "cors-PROD" ]
+    branches: [ "keyvault-PROD" ]
   pull_request:
-    branches: [ "cors-PROD" ]
+    branches: [ "keyvault-PROD" ]
   workflow_dispatch:
 
 env:
